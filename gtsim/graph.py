@@ -14,31 +14,50 @@ class Node(object):
     def value(self, x):
         self._value = x
 
+    def __str__(self):
+        return str(self._value)
 
-class Edge(object):
+
+class Digraph(object):
     """
-    Edge class representing an edge with src and dst nodes.
+    A directed acyclic graph ADT.
+
+    Interface:
+        V() (int) the number of vertices
+        E() (int) the number of edges
+        addEdge(u, v) add an edge from u to v
+        adj(v) (iterable) of neighbors of v
     """
-    def __init__(self, src, dst):
-        """
-        _src: (Node) source node of an edge
-        _dst: (Node) destination node of an edge
-        """
-        self._src = src
-        self._dst = dst
+    def __init__(self):
+        self._adj = {}
+        self._v = 0
+        self._e = 0
 
     @property
-    def src(self):
-        return self._src
-
-    @src.setter
-    def src(self, node):
-        self._src = node
+    def v(self):
+        return self._v
 
     @property
-    def dst(self):
-        return self._dst
+    def e(self):
+        return self._e
 
-    @dst.setter
-    def dst(self, node):
-        self._dst = node
+    def addEdge(self, u, v):
+        if u not in self._adj:
+            self._adj[u] = []
+        self._adj[u].append(v)
+        self._v += 2
+        self._e += 1
+
+    def adj(self, u):
+        return self._adj[u]
+
+if __name__ == "__main__":
+    u = Node(10)
+    v = Node(20)
+    g = Digraph()
+    print u
+    print v
+    g.addEdge(u, v)
+    g.addEdge(v, None)
+    for e in g.adj(v):
+        print e
