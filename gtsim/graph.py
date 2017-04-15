@@ -33,14 +33,6 @@ class Digraph(object):
         self._v = 0
         self._e = 0
 
-    @property
-    def v(self):
-        return self._v
-
-    @property
-    def e(self):
-        return self._e
-
     def addEdge(self, u, v):
         if u not in self._adj:
             self._adj[u] = []
@@ -51,6 +43,31 @@ class Digraph(object):
     def adj(self, u):
         return self._adj[u]
 
+    @property
+    def v(self):
+        return self._v
+
+    @property
+    def e(self):
+        return self._e
+
+    def __str__(self):
+        print "Implement me"
+
+
+def dfs(G):
+    parent = {}
+    for v, _ in G.adj.iteritems():
+        if v is not in parent:
+            parent[v] = None
+            dfs_visit(G, v)
+
+
+def dfs_visit(G, s):
+    for v in G.adj[s]:
+        if v is not in parent:
+            parent[v] = s
+            dfs_visit(G, v)
 if __name__ == "__main__":
     u = Node(10)
     v = Node(20)
