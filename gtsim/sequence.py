@@ -8,7 +8,25 @@ class Node(object):
         self.right = None
 
 
-def build_seq_tree(n, s=""):
+class SequenceTree(object):
+    def __init__(self, moves={}, values={}):
+        self.root = None
+        self.moves = moves
+        self.values = values
+
+    def build_tree(self, n):
+        self.root = build_tree(n)
+
+    def assign_moves(self, first, second):
+        self.moves = {}
+        assign_moves(self.root, first, second, moves=self.moves)
+
+    def assign_values(self):
+        self.values = {}
+        assign_values(self.root, values=self.values)
+
+
+def build_tree(n, s=""):
     """Builds a game tree for sequence game where final move has bitsring
     of length n."""
     if n == 0:
@@ -16,25 +34,15 @@ def build_seq_tree(n, s=""):
 
     p = Node(s)
 
-    p.left = build_seq_tree(n-1, s=p.value + "0")
-    p.right = build_seq_tree(n-1, s=p.value + "1")
+    p.left = build_tree(n-1, s=p.value + "0")
+    p.right = build_tree(n-1, s=p.value + "1")
     return p
-
-
-def intrav_print(root):
-    if root is None:
-        return
-
-    intrav_print(root.left)
-    print root.value
-    intrav_print(root.right)
 
 
 def assign_moves(root, first, second, moves={}):
     """Assigns moves alternating between first and second names."""
     if root is None:
         return
-
     assign_moves(root.left, first, second, moves=moves)
     if len(root.value) % 2 != 0:
         moves[root.value] = first
@@ -52,6 +60,15 @@ def assign_values(root, values={}):
     assign_values(root.right, values=values)
 
 
+def intrav_print(root):
+    if root is None:
+        return
+
+    intrav_print(root.left)
+    print root.value
+    intrav_print(root.right)
+
+
 if __name__ == "__main__":
     from optparse import OptionParser
 
@@ -66,19 +83,17 @@ if __name__ == "__main__":
     first = options.first
     second = options.second
 
-    tree = build_seq_tree(n)
-    intrav_print(tree)
+    tree = SequenceTree()
 
-    moves = {}
-    assign_moves(tree, first, second, moves=moves)
-    del moves[""]
+    tree.build_tree(n)
+    tree.assign_moves(first, second)
+    tree.assign_values()
+    intrav_print(tree.root)
 
     print "Moves = "
-    for k, v in moves.items():
+    for k, v in tree.moves.items():
         print k, v
 
-    val = {}
-    assign_values(tree, values=val)
     print "values = "
-    for k, v in val.items():
+    for k, v in tree.values.items():
         print k, v

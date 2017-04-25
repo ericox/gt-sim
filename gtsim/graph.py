@@ -51,23 +51,22 @@ class Digraph(object):
     def e(self):
         return self._e
 
-    def __str__(self):
-        print "Implement me"
-
 
 def dfs(G):
     parent = {}
     for v, _ in G.adj.iteritems():
-        if v is not in parent:
+        if v not in parent:
             parent[v] = None
-            dfs_visit(G, v)
+            dfs_visit(G, v, parent)
 
 
-def dfs_visit(G, s):
+def dfs_visit(G, s, parent):
     for v in G.adj[s]:
-        if v is not in parent:
+        if v not in parent:
             parent[v] = s
             dfs_visit(G, v)
+
+
 if __name__ == "__main__":
     u = Node(10)
     v = Node(20)
