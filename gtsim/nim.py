@@ -44,7 +44,7 @@ def make_graph(s, graph=Graph()):
         s (Node) a starting state for the game nim e.g., (3, 5, 7).
 
     Returns:
-        a graph containing the game nodes
+        The starting state s.
     """
     base = Node(0, 0, 0)
 
