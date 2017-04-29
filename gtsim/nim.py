@@ -1,4 +1,5 @@
 class Node(object):
+    """Node representation for nim game."""
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -15,10 +16,12 @@ class Node(object):
 
 
 class Graph(object):
+    """A basic directed graph."""
     def __init__(self):
         self.adj = {}
 
     def add_edge(self, u, v):
+        """Adds an edge from u to v."""
         if u not in self.adj:
             self.adj[u] = []
         self.adj[u].append(v)
@@ -49,18 +52,15 @@ def make_graph(s, graph=Graph()):
     if s == base:
         return s
 
-    # Remove stones from pile i and make a recursive calls to build next states.
-    for i in ['x', 'y', 'z']:
-        # get value for pile i
-        v = s[i]
-        for j in range(v, 0, -1):
-            if i == 'x':
+    # Remove stones from pile s[k] and make recursive calls for next states.
+    for k in ['x', 'y', 'z']:
+        for j in range(s[k], 0, -1):
+            if k == 'x':
                 q = make_graph(Node(s.x-j, s.y, s.z), graph=graph)
-            elif i == 'y':
+            elif k == 'y':
                 q = make_graph(Node(s.x, s.y-j, s.z), graph=graph)
-            elif i == 'z':
+            elif k == 'z':
                 q = make_graph(Node(s.x, s.y, s.z-j), graph=graph)
-
             graph.add_edge(s, q)
     return s
 
@@ -71,4 +71,5 @@ if __name__ == "__main__":
 
     g = Graph()
     s = make_graph(t, graph=g)
+
     print g
