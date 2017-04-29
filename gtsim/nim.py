@@ -1,36 +1,74 @@
-class State(object):
-    def __init__(self, a, b, c):
-        self.a = a
-        self.b = b
-        self.c = c
+class Node(object):
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
 
     def __str__(self):
-        return "({}, {}, {})".format(self.a, self.b, self.c)
+        return "({}, {}, {})".format(self.x, self.y, self.z)
+
+    def __getitem__(self, item):
+        return self.__dict__[item]
+
+    def __eq__(self, p):
+        return self.x == p.x and self.y == p.y and self.z == p.z
 
 
-def next_nim_states(start):
-    states = []
-    for i in range(start.a, 0, -1):
-        for j in range(start.b, 0, -1):
-            for k in range(start.c, 0, -1):
-                states.append(State(i, j, k))
-    return states
+class Graph(object):
+    def __init__(self):
+        self.adj = {}
+
+    def add_edge(self, u, v):
+        if u not in self.adj:
+            self.adj[u] = []
+        self.adj[u].append(v)
+
+    def __str__(self):
+        s = ""
+        for k in self.adj.keys():
+            s += str(k) + " -> "
+            for items in self.adj[k]:
+                s += str(items) + " "
+            s += '\n'
+        return s
 
 
-def print_states(states):
-    for s in states:
-        print "    ", s
+def make_graph(s, graph=Graph()):
+    """make a graph for nim given a starting state s.
+
+    Args:
+        g (Graph) a graph that is built during recursive calls.
+        s (Node) a starting state for the game nim e.g., (3, 5, 7).
+
+    Returns:
+        a graph containing the game nodes
+    """
+
+    # Base case
+    base = Node(0, 0, 0)
+    if s == base:
+        return s
+
+    # Remove stones from pile i and make a recursive calls to build next states.
+    for i in ['x', 'y', 'z']:
+        # get value for pile i
+        v = s[i]
+        for j in range(v, 0, -1):
+            if i == 'x':
+                q = make_graph(Node(s.x-j, s.y, s.z), graph=graph)
+            elif i == 'y':
+                q = make_graph(Node(s.x, s.y-j, s.z), graph=graph)
+            elif i == 'z':
+                q = make_graph(Node(s.x, s.y, s.z-j), graph=graph)
+
+            graph.add_edge(s, q)
+    return s
 
 
 if __name__ == "__main__":
-    print "(2, 1, 1)"
-    s = next_nim_states(State(2, 1, 1))
-    print_states(s)
 
-    print "(2, 2, 1)"
-    s = next_nim_states(State(2, 2, 1))
-    print_states(s)
+    t = Node(2, 2, 3)
 
-    print "(3, 2, 1)"
-    s = next_nim_states(State(3, 2, 1))
-    print_states(s)
+    g = Graph()
+    s = make_graph(t, graph=g)
+    print g

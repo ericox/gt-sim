@@ -9,10 +9,11 @@ class Node(object):
 
 
 class SequenceTree(object):
-    def __init__(self, moves={}, values={}):
+    # TODO: Convert to graph with adj list.
+    def __init__(self):
         self.root = None
-        self.moves = moves
-        self.values = values
+        self.moves = {}
+        self.values = {}
 
     def build_tree(self, n):
         self.root = build_tree(n)
@@ -76,7 +77,6 @@ if __name__ == "__main__":
     parser.add_option("-n", "--nmoves", dest="n", help="number of moves")
     parser.add_option("-f", "--first", dest="first", help="first player")
     parser.add_option("-s", "--second", dest="second", help="second player")
-
     (options, args) = parser.parse_args()
 
     n = int(options.n)
@@ -84,12 +84,11 @@ if __name__ == "__main__":
     second = options.second
 
     tree = SequenceTree()
-
     tree.build_tree(n)
     tree.assign_moves(first, second)
     tree.assign_values()
-    intrav_print(tree.root)
 
+    intrav_print(tree.root)
     print "Moves = "
     for k, v in tree.moves.items():
         print k, v
