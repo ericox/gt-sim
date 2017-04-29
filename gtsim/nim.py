@@ -46,9 +46,9 @@ def make_graph(s, graph=Graph()):
     Returns:
         a graph containing the game nodes
     """
-
-    # Base case
     base = Node(0, 0, 0)
+
+    # Base case.
     if s == base:
         return s
 
