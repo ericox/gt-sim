@@ -15,7 +15,7 @@ BLACK = 1
 DEBUG = 1
 
 
-def dfs_visit_init(graph, u, first, second, time=0):
+def dfs_visit_init(graph, u, first, last, time=0):
     """Runs dfs to initialize game moves and leaf node values"""
     color[u] = GRAY
 
@@ -26,9 +26,9 @@ def dfs_visit_init(graph, u, first, second, time=0):
     # The first move is at the depth 1 and every odd depth.
     # Second player moves on even nodes.
     if depth[u] % 2 == 0:
-        moves[u] = second
+        moves[u] = last
         if u is not None and u == Node(0, 0, 0):
-            # assign a -1 for the second player for a leaf
+            # assign a -1 for the last player for a leaf
             value[u] = -1
     else:
         moves[u] = first
@@ -38,11 +38,11 @@ def dfs_visit_init(graph, u, first, second, time=0):
 
     for v in graph.adj[u]:
         if color.get(v, WHITE) == WHITE:
-            dfs_visit_init(graph, v, first, second, time=time)
+            dfs_visit_init(graph, v, first, last, time=time)
     color[u] = BLACK
 
 
-def dfs_init(graph, first, second):
+def dfs_init(graph, first, last):
     """Assign moves and leaf nodes +1 or -1 depending on if paul or carole
     wins"""
     t = 0
@@ -50,7 +50,7 @@ def dfs_init(graph, first, second):
         color[v] = WHITE
     for v in graph.adj.keys():
         if color.get(v, WHITE) == WHITE:
-            dfs_visit_init(graph, v, first, second, time=t)
+            dfs_visit_init(graph, v, first, last, time=t)
 
 
 def dfs_visit(graph, u):
@@ -105,15 +105,35 @@ def reset_dfs_colors(graph):
 
 
 if __name__ == "__main__":
+    from optparse import OptionParser
+
+    parser = OptionParser(usage="usage: %prog [options]")
+    parser.add_option("-x", "--xpile",
+                      dest="x", help="size of pile 1")
+    parser.add_option("-y", "--ypile",
+                      dest="y", help="size of pile 2")
+    parser.add_option("-z", "--zpile",
+                      dest="z", help="size of pile 3")
+    parser.add_option("-f", "--first",
+                      dest="first", help="first player name")
+    parser.add_option("-l", "--last",
+                      dest="last", help="last player name")
+    (options, args) = parser.parse_args()
+
+    x = int(options.x)
+    y = int(options.y)
+    z = int(options.z)
+
+    first = options.first
+    last = options.last
+
     # Create nim states
-    start = Node(1, 2, 0)
+    start = Node(x, y, z)
     nim = Graph()
     make_graph(start, graph=nim)
 
     # Init dfs to assign moves and leaf nodes
-    first = 'paul'
-    second = 'carole'
-    dfs_init(nim, first, second)
+    dfs_init(nim, first, last)
 
     # Reset colors otherwise dfs won't traverse graph after init
     reset_dfs_colors(nim)
@@ -127,7 +147,7 @@ if __name__ == "__main__":
     print "----------------------------------"
     print "starting state: ", str(start)
     print "first play: ", first
-    print "second play: ", second
+    print "last play: ", last
     print "winner: ", 'paul' if winner == 1 else 'carole'
     print "graph size n: ", len(nim.adj)
     print "graph parity: ", 'even' if len(nim.adj) % 2 == 0 else 'odd'
