@@ -4,13 +4,21 @@ class Node(object):
         self.x = x
         self.y = y
         self.z = z
-        self.value = 0
+        self.start_time = 0
+        self.finish_time = 0
 
-    def set_value(self, val):
-        self.value = val
+    def set_start(self, val):
+        self.start_time = val
+
+    def set_finish(self, val):
+        self.finish_time = val
 
     def __str__(self):
-        return "({}, {}, {})".format(self.x, self.y, self.z)
+        return "({}, {}, {}, {}/{})".format(self.x,
+                                            self.y,
+                                            self.z,
+                                            self.start_time,
+                                            self.finish_time)
 
     def __getitem__(self, item):
         return self.__dict__[item]
