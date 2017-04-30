@@ -16,26 +16,30 @@ DEBUG = 1
 
 
 def dfs_visit_init(graph, u, first, last):
-    """Runs dfs to initialize game moves and leaf node values"""
+    """
+    Runs dfs to initialize game moves and leaf node values
+
+    Note:
+        The first move is at the depth 1 and every odd depth. The second player
+        moves on nodes at even depth. We mark leaf nodes with +1 if the first
+        player wins, and -1 if the second player wins.
+    """
     global time
     color[u] = GRAY
 
-    # Use the parity of the depth to determine who moves on what level.
     time += 1
     depth[u] = time
     u.set_start(time)
 
-    # The first move is at the depth 1 and every odd depth.
-    # Second player moves on even nodes.
+    # Odd depth is the first player.
     if depth[u] % 2 != 0:
         moves[u] = first
         if u is not None and u == Node(0, 0, 0):
-            # assign a +1 for the first player for a leaf
             value[u] = 1
+    # Even depth is the second player.
     else:
         moves[u] = last
         if u is not None and u == Node(0, 0, 0):
-            # assign a -1 for the last player for a leaf
             value[u] = -1
 
     for v in graph.adj[u]:
