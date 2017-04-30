@@ -13,6 +13,9 @@ class Node(object):
     def set_finish(self, val):
         self.finish_time = val
 
+    def sort_key(self):
+        return "{}{}{}".format(self.x, self.y, self.z)
+
     def __str__(self):
         return "({}, {}, {}, {}/{})".format(self.x,
                                             self.y,

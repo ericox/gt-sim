@@ -92,13 +92,8 @@ def dfs_visit(graph, u, first, last):
     color[u] = BLACK
     time += 1
     u.set_finish(time)
-
-    if moves[u] == first:
-        value[u] = p
-        return p
-    else:
-        value[u] = c
-        return c
+    value[u] = p
+    return p
 
 
 def reset_dfs_all():
@@ -133,6 +128,9 @@ if __name__ == "__main__":
                       dest="first", help="first player name")
     parser.add_option("-l", "--last",
                       dest="last", help="last player name")
+    parser.add_option("-c", "--csv",
+                      dest="csv", help="csv file output")
+
     (options, args) = parser.parse_args()
 
     x = int(options.x)
@@ -141,13 +139,14 @@ if __name__ == "__main__":
 
     first = options.first
     last = options.last
+    filename = ""
+    if options.csv:
+        filename = "nim_{}_{}_{}_{}_{}.csv".format(x, y, z, first, last)
 
     # Create nim states
     start = Node(x, y, z)
     nim = Graph()
     make_graph(start, graph=nim)
-
-    print nim
 
     # Init dfs to assign moves and leaf nodes
     time = 0
@@ -158,10 +157,11 @@ if __name__ == "__main__":
     time = 0
     winner = dfs_visit(nim, start, first, last)
 
-    print nim
     if DEBUG:
         print "values computed = ", len(value.keys())
-        for v in value.keys():
+        keys = value.keys()
+        keys = sorted(keys, key=lambda x: (x.x, x.y, x.z))
+        for v in keys:
             print v, value[v]
 
     print "----------------------------------"
@@ -172,3 +172,14 @@ if __name__ == "__main__":
     print "graph size n: ", len(nim.adj)
     print "graph parity: ", 'even' if len(nim.adj) % 2 == 0 else 'odd'
     print "----------------------------------"
+
+    if filename:
+        z = Node(0, 0, 0)
+        outcomes = [value[k] for k in value.keys() if k == z]
+        o = ""
+        for i in range(0, len(outcomes)):
+            o += str(outcomes[i]) + ", "
+        o += str(outcomes[-1])
+        with open(filename, 'w') as f:
+            f.write(str(winner) + '\n')
+            f.write(o)
