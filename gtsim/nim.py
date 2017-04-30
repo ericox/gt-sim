@@ -4,6 +4,10 @@ class Node(object):
         self.x = x
         self.y = y
         self.z = z
+        self.value = 0
+
+    def set_value(self, val):
+        self.value = val
 
     def __str__(self):
         return "({}, {}, {})".format(self.x, self.y, self.z)
@@ -25,6 +29,9 @@ class Graph(object):
         if u not in self.adj:
             self.adj[u] = []
         self.adj[u].append(v)
+
+    def add_leaf(self, u):
+        self.adj[u] = []
 
     def __str__(self):
         s = ""
@@ -50,6 +57,8 @@ def make_graph(s, graph=Graph()):
 
     # Base case.
     if s == base:
+        # add graph.add_edge(s, []) or add_edge(s, None) tricky.
+        graph.add_leaf(s)
         return s
 
     # Remove stones from pile s[k] and make recursive calls for next states.
@@ -66,10 +75,13 @@ def make_graph(s, graph=Graph()):
 
 
 if __name__ == "__main__":
-
-    t = Node(2, 2, 3)
+    t = Node(1, 2, 0)
 
     g = Graph()
-    s = make_graph(t, graph=g)
-
+    make_graph(t, graph=g)
     print g
+
+    d = {}
+    d[t] = 10
+    d[t] = 11
+    print d
