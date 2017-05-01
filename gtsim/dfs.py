@@ -61,7 +61,7 @@ def dfs_init(graph, first, last):
             dfs_visit_init(graph, v, first, last)
 
 
-def dfs_visit(graph, u, first, last):
+def dfs_visit(graph, u):
     """Runs dfs_visit on a source node u. This also computes minimax values
     for each vertex for nim game play. dfs_visit assumes that values and
     moves are already initialized"""
@@ -70,30 +70,27 @@ def dfs_visit(graph, u, first, last):
     p = -float('Inf')
     c = float('Inf')
 
+    if u == Node(0, 0, 0):
+        return (1, -1)
+
     time += 1
     u.set_start(time)
-
-    # Base case
-    if u == Node(0, 0, 0):
-        return value[u]
 
     color[u] = GRAY
     for v in graph.adj[u]:
         if color.get(v, WHITE) == WHITE:
-            y = dfs_visit(graph, v, first, last)
-            p = max(p, y)
-            c = min(c, y)
+            (p0, c0) = dfs_visit(graph, v)
+            p = max(p, c0)
+            c = min(c, p0)
             if DEBUG:
-                print "dfs_visit(g, {}) -> ({})".format(v, y)
-                print "    (p, c) -> ({}, {})".format(p, c)
+                print "dfs_visit(g, {}) -> ({})".format(v, (p0, c0))
 
     # When u is black values for paul and carole are recusively defined and
     # p and c store repsective max an mins for paul and carole.
     color[u] = BLACK
     time += 1
     u.set_finish(time)
-    value[u] = p
-    return p
+    return (p, c) 
 
 
 def reset_dfs_all():
@@ -155,20 +152,13 @@ if __name__ == "__main__":
     # Reset colors otherwise dfs won't traverse graph after init
     reset_dfs_colors(nim)
     time = 0
-    winner = dfs_visit(nim, start, first, last)
-
-    if DEBUG:
-        print "values computed = ", len(value.keys())
-        keys = value.keys()
-        keys = sorted(keys, key=lambda x: (x.x, x.y, x.z))
-        for v in keys:
-            print v, value[v]
+    vpaul, vcarole = dfs_visit(nim, start)
 
     print "----------------------------------"
-    print "starting state: ", str(start), winner
+    print "starting state: ", str(start), (vpaul, vcarole)
     print "first play: ", first
     print "last play: ", last
-    print "winner: ", 'paul' if winner == 1 else 'carole'
+    print "winner: ", vpaul if first == 'paul' else vcarole 
     print "graph size n: ", len(nim.adj)
     print "graph parity: ", 'even' if len(nim.adj) % 2 == 0 else 'odd'
     print "----------------------------------"
