@@ -133,6 +133,10 @@ class SequenceDFS(object):
         """returns number of vertices in graph"""
         return len(self.g.adj)
 
+    def parity_n(self):
+        """count leafs"""
+        return 'even' if self.n % 2 == 0 else 'odd'
+
     def e(self):
         """returns number of edges in graph"""
         count = 0
@@ -223,6 +227,7 @@ if __name__ == "__main__":
     first = options.first
     second = options.second
     base = int(options.base)
+    report = bool(options.report)
 
     g = Graph()
 
@@ -239,6 +244,8 @@ if __name__ == "__main__":
     start = Node("")
     p, c = sim.dfs_visit(start)
 
+    parity = 'even' if sim.v() % 2 == 0 else 'odd'
+
     if DEBUG:
         print "----------------------------------"
         print "starting state: ", str(start), (p, c)
@@ -249,4 +256,9 @@ if __name__ == "__main__":
         print "graph size v: ", sim.v()
         print "graph size e: ", sim.e()
         print "graph parity: ", 'even' if sim.v() % 2 == 0 else 'odd'
+        print "n parity: ", 'even' if n % 2 == 0 else 'odd'
         print "----------------------------------"
+
+    if report:
+        info = "{}, {}, {}, {}, {}, {}".format(n, first, second, p, c, sim.parity_n()) 
+        print info
