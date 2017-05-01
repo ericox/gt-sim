@@ -30,6 +30,7 @@ class Node(object):
         return self.x == p.x and self.y == p.y and self.z == p.z
 
 
+
 class Graph(object):
     """A basic directed graph."""
     def __init__(self):

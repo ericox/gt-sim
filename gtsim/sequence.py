@@ -1,73 +1,140 @@
 import random
+import Queue
 
+DEBUG = 1
 
 class Node(object):
+    """Node that stores a single value"""
     def __init__(self, value):
         self.value = value
-        self.left = None
-        self.right = None
+
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, x):
+        return self.value == x.value
+
+    def __str__(self):
+        return self.value
 
 
-class SequenceTree(object):
-    # TODO: Convert to graph with adj list.
+class Graph(object):
+    """A directed graph."""
     def __init__(self):
-        self.root = None
-        self.moves = {}
+        self.adj = {}
+
+    def add_edge(self, u, v):
+        """Adds an edge from u to v."""
+        if u not in self.adj:
+            self.adj[u] = []
+        self.adj[u].append(v)
+
+    def add_leaf(self, u):
+        self.adj[u] = []
+
+    def __str__(self):
+        s = ""
+        for k in self.adj.keys():
+            s += str(k) + " -> "
+            for items in self.adj[k]:
+                s += str(items) + " "
+            s += '\n'
+        return s
+
+
+class SequenceDFS(object):
+    def __init__(self, graph, n, first='paul', second='carole', base=2):
+        self.g = graph
+        self.n = n
+        self.first = first
+        self.second = second 
+        self.base = base
+        self.moves = {} 
         self.values = {}
 
-    def build_tree(self, n):
-        self.root = build_tree(n)
+    def _assign_values(self):
+        for node in self.g.adj.keys():
+            if len(node.value) == self.n:
+                self.values[node] = random.uniform(-1, 1)
 
-    def assign_moves(self, first, second):
-        self.moves = {}
-        assign_moves(self.root, first, second, moves=self.moves)
+    def _is_leaf(self, node):
+        return len(node.value) == self.n
 
-    def assign_values(self):
-        self.values = {}
-        assign_values(self.root, values=self.values)
+    def v(self):
+        return len(self.g.adj)
 
+    def e(self):
+        count = 0
+        for values in self.g.adj.values():
+            count += 1
+        return count 
 
-def build_tree(n, s=""):
-    """Builds a game tree for sequence game where final move has bitsring
-    of length n."""
-    if n == 0:
-        return None
+    def dfs_visit(self, u, color={}):
+        """Runs dfs_visit on a source node u. This also computes minimax values
+        for each vertex for nim game play. dfs_visit assumes that values and
+        moves are already initialized"""
 
-    p = Node(s)
+       # Store the values if paul plays first or carole plays first
+        p = -float('Inf')
+        c = float('Inf')
 
-    p.left = build_tree(n-1, s=p.value + "0")
-    p.right = build_tree(n-1, s=p.value + "1")
-    return p
+        if self._is_leaf(u):
+            return (self.values[u], self.values[u])
 
+        color[u] = 0 
+        for v in self.g.adj[u]:
+            # white color is -1
+            if color.get(v, -1) == -1:
+                (p0, c0) = self.dfs_visit(v, color=color)
+                p = max(p, c0)
+                c = min(c, p0)
+                if DEBUG:
+                    print "dfs_visit(g, {}) -> ({})".format(v, (p0, c0))
 
-def assign_moves(root, first, second, moves={}):
-    """Assigns moves alternating between first and second names."""
-    if root is None:
-        return
-    assign_moves(root.left, first, second, moves=moves)
-    if len(root.value) % 2 != 0:
-        moves[root.value] = first
-    else:
-        moves[root.value] = second
-    assign_moves(root.right, first, second, moves=moves)
+        # When u is black values for paul and carole are recusively defined and
+        # p and c store repsective max an mins for paul and carole.
+        color[u] = 1 
+        return (p, c) 
 
+    def build_sequence(self, start=Node("")):
+        """Builds a graph for sequence game where final move has bitsring
+        of length using a modified bfs."""
+        q = Queue.Queue()
+        color = {}
+        dist = {}
+        moves = {}
 
-def assign_values(root, values={}):
-    """Assigns random values on [-1, +1] to leaf nodes of tree"""
-    if root.left is None and root.right is None:
-        values[root.value] = random.uniform(-1, 1)
-        return
-    assign_values(root.left, values=values)
-    assign_values(root.right, values=values)
+        # enqueue src vertex, and color -1 for white.
+        color[start.value] = -1
+        dist[start.value] = 0
+        self.moves[start.value] = self.first 
+        q.put(start.value)
+        self.g.add_leaf(start)
 
+        # Stop when we reach 2**n - 1 nodes which will have leafs of size n.
+        i = 0
+        while not q.empty() and i < 2**(n)-1:
+            u = q.get()
+            # iterate over possible next strings 
+            for v in range(0, base):
+                s = u + str(v)
+                next_bit = Node(s)
+                if color.get(s, -1) == -1:
+                    color[s] = 0
+                    q.put(s)
+                    dist[s] = dist[u] + 1
 
-def intrav_print(root):
-    if root is None:
-        return
+                    if dist[s] % 2 == 0:
+                        self.moves[s] = self.first
+                    else:
+                        self.moves[s] = self.second
 
-    intrav_print(root.left)
-    print root.value
-    intrav_print(root.right)
+                    self.g.add_edge(Node(u), Node(s))
+                    if len(s) == self.n:
+                        self.g.add_leaf(Node(s))
+            i += 1
+        
+        self._assign_values()
 
 
 if __name__ == "__main__":
@@ -77,22 +144,32 @@ if __name__ == "__main__":
     parser.add_option("-n", "--nmoves", dest="n", help="number of moves")
     parser.add_option("-f", "--first", dest="first", help="first player")
     parser.add_option("-s", "--second", dest="second", help="second player")
+    parser.add_option("-b", "--base", dest="base", help="base player")
     (options, args) = parser.parse_args()
 
     n = int(options.n)
     first = options.first
     second = options.second
+    base = int(options.base)
 
-    tree = SequenceTree()
-    tree.build_tree(n)
-    tree.assign_moves(first, second)
-    tree.assign_values()
+    g = Graph()
 
-    intrav_print(tree.root)
-    print "Moves = "
-    for k, v in tree.moves.items():
-        print k, v
+    # Create sequence graph
+    sim = SequenceDFS(g, n)
+    sim.build_sequence()
+    print g
+    
+    # play the game
+    start = Node("")
+    p, c = sim.dfs_visit(start)
 
-    print "values = "
-    for k, v in tree.values.items():
-        print k, v
+    print "----------------------------------"
+    print "starting state: ", str(start), (p, c)
+    print "first play: ", first
+    print "last play: ", second 
+    print "winnings first: ", p
+    print "winnings second: ", c
+    print "graph size v: ", sim.v()
+    print "graph size e: ", sim.e()
+    print "graph parity: ", 'even' if sim.v() % 2 == 0 else 'odd'
+    print "----------------------------------"
