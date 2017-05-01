@@ -28,7 +28,7 @@ $ python -m gtsim.sequence -n 4 -f paul -s carole -b 2
 import random
 import Queue
 
-DEBUG = 0
+DEBUG = 1
 
 class Node(object):
     """Node that stores a single value"""
@@ -188,11 +188,13 @@ class SequenceDFS(object):
 
         # Stop when we reach 2**n - 1 nodes which will have leafs of size n.
         i = 0
-        while not q.empty() and i < 2**(n)-1:
+        while not q.empty() and i < base**(n)-1:
             u = q.get()
             # iterate over possible next strings 
-            for v in range(0, base):
+            for v in range(0, self.base):
+                print v
                 s = u + str(v)
+                print s
                 next_bit = Node(s)
                 if color.get(s, -1) == -1:
                     color[s] = 0
@@ -232,7 +234,7 @@ if __name__ == "__main__":
     g = Graph()
 
     # Create sequence graph
-    sim = SequenceDFS(g, n)
+    sim = SequenceDFS(g, n, base=base)
     sim.build_sequence()
 
     if DEBUG:
