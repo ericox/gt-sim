@@ -1,30 +1,3 @@
-"""
-Project code for CSCI-GA1170 Fundamenal Algorithms, SP 2017, Prof. Joel Spencer
-
-Author:
-Eric Cox
-
-Collaborators:
-Willam Larche
-Steven Balough 
-
-$ python -m gtsim.sequence -h
-Usage: sequence.py [options]
-
-Options:
-  -h, --help            show this help message and exit
-  -n N, --nmoves=N      number of moves
-  -f FIRST, --first=FIRST
-                        first player
-  -s SECOND, --second=SECOND
-                        second player
-  -b BASE, --base=BASE  base of sequence digits
-  -r REPORT, --report=REPORT
-                        generate report data
-
-Example:
-$ python -m gtsim.sequence -n 4 -f paul -s carole -b 2
-"""
 import random
 import Queue
 
@@ -133,10 +106,6 @@ class SequenceDFS(object):
         """returns number of vertices in graph"""
         return len(self.g.adj)
 
-    def parity_n(self):
-        """count leafs"""
-        return 'even' if self.n % 2 == 0 else 'odd'
-
     def e(self):
         """returns number of edges in graph"""
         count = 0
@@ -188,10 +157,10 @@ class SequenceDFS(object):
 
         # Stop when we reach 2**n - 1 nodes which will have leafs of size n.
         i = 0
-        while not q.empty() and i < base**(n)-1:
+        while not q.empty() and i < 2**(n)-1:
             u = q.get()
             # iterate over possible next strings 
-            for v in range(0, self.base):
+            for v in range(0, base):
                 s = u + str(v)
                 next_bit = Node(s)
                 if color.get(s, -1) == -1:
@@ -227,24 +196,17 @@ if __name__ == "__main__":
     first = options.first
     second = options.second
     base = int(options.base)
-    report = bool(options.report)
 
     g = Graph()
 
     # Create sequence graph
-    sim = SequenceDFS(g, n, base=base)
+    sim = SequenceDFS(g, n)
     sim.build_sequence()
-
-    if DEBUG:
-        print "----------------------------------"
-        print g
-        print "----------------------------------"
+    print g
     
     # play the game
     start = Node("")
     p, c = sim.dfs_visit(start)
-
-    parity = 'even' if sim.v() % 2 == 0 else 'odd'
 
     if DEBUG:
         print "----------------------------------"
@@ -256,9 +218,4 @@ if __name__ == "__main__":
         print "graph size v: ", sim.v()
         print "graph size e: ", sim.e()
         print "graph parity: ", 'even' if sim.v() % 2 == 0 else 'odd'
-        print "n parity: ", 'even' if n % 2 == 0 else 'odd'
         print "----------------------------------"
-
-    if report:
-        info = "{}, {}, {}, {}, {}, {}".format(n, first, second, p, c, sim.parity_n()) 
-        print info
